@@ -1,0 +1,64 @@
+import java.util.Random;
+import java.util.Scanner;
+
+public class EnhancedNumberGuessingGame {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        Random random = new Random();
+
+        int lowerBound = 1;
+        int upperBound = 100;
+        int targetNumber = random.nextInt(upperBound - lowerBound + 1) + lowerBound;
+        int numberOfGuesses = 0;
+        boolean hasGuessedCorrectly = false;
+
+        System.out.println("Welcome to the Enhanced Number Guessing Game!");
+        System.out.println("Try to guess the number between " + lowerBound + " and " + upperBound);
+
+        while (!hasGuessedCorrectly && numberOfGuesses < 4) {
+            System.out.print("Enter your guess: ");
+            int userGuess = getUserInput(scanner);
+
+            numberOfGuesses++;
+
+            if (userGuess < lowerBound || userGuess > upperBound) {
+                System.out.println("Please guess a number between " + lowerBound + " and " + upperBound);
+            } else {
+                if (userGuess == targetNumber) {
+                    hasGuessedCorrectly = true;
+                    System.out.println("Congratulations! You guessed the number " + targetNumber + " in " + numberOfGuesses + " attempts.");
+                } else {
+                    provideEnhancedHint(userGuess, targetNumber);
+                }
+            }
+        }
+
+        if (!hasGuessedCorrectly) {
+            System.out.println("Sorry! You have exceeded the maximum number of attempts. The correct number was: " + targetNumber);
+        }
+
+        scanner.close();
+    }
+
+    private static int getUserInput(Scanner scanner) {
+        while (!scanner.hasNextInt()) {
+            System.out.print("Invalid input. Please enter a valid number: ");
+            scanner.next(); // Consume invalid input
+        }
+        return scanner.nextInt();
+    }
+
+    private static void provideEnhancedHint(int userGuess, int targetNumber) {
+        int difference = Math.abs(userGuess - targetNumber);
+
+        if (difference <= 5) {
+            System.out.println("Very close! You're almost there.");
+        } else if (difference <= 10) {
+            System.out.println("Close! You're getting warmer.");
+        } else if (difference <= 20) {
+            System.out.println("Warm! Try a bit higher or lower.");
+        } else {
+            System.out.println("Cold! You're far from the correct number.");
+        }
+    }
+}
