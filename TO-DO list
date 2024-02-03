@@ -1,0 +1,262 @@
+import java.io.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+class Task implements Serializable {
+    private String name;
+    private String description;
+    private LocalDate deadline;
+    private boolean completed;
+    private Priority priority;
+    private String category;
+
+    public Task(String name, String description, LocalDate deadline, Priority priority, String category) {
+        this.name = name;
+        this.description = description;
+        this.deadline = deadline;
+        this.completed = false;
+        this.priority = priority;
+        this.category = category;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public LocalDate getDeadline() {
+        return deadline;
+    }
+
+    public void setDeadline(LocalDate deadline) {
+        this.deadline = deadline;
+    }
+
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void markCompleted() {
+        this.completed = true;
+    }
+
+    public Priority getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Priority priority) {
+        this.priority = priority;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    @Override
+    public String toString() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+        String formattedDeadline = deadline.format(formatter);
+        return "Task: " + name + "\nDescription: " + description + "\nDeadline: " + formattedDeadline +
+                "\nPriority: " + priority + "\nCategory: " + category + "\nCompleted: " + completed + "\n";
+    }
+}
+
+enum Priority {
+    HIGH,
+    MEDIUM,
+    LOW
+}
+
+public class ToDoList {
+    private ArrayList<Task> tasks;
+    private Scanner scanner;
+
+    public ToDoList() {
+        tasks = new ArrayList<>();
+        scanner = new Scanner(System.in);
+    }
+
+    public void start() {
+        while (true) {
+            displayMenu();
+            int choice = getUserChoice();
+
+            switch (choice) {
+                case 1:
+                    addTask();
+                    break;
+                case 2:
+                    updateTask();
+                    break;
+                case 3:
+                    markTaskAsCompleted();
+                    break;
+                case 4:
+                    viewTasks();
+                    break;
+                case 5:
+                    saveTasksToFile();
+                    break;
+                case 6:
+                    loadTasksFromFile();
+                    break;
+                case 7:
+                    System.out.println("Goodbye!");
+                    System.exit(0);
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+
+    private void displayMenu() {
+        System.out.println("\n===== To-Do List Menu =====");
+        System.out.println("1. Add Task");
+        System.out.println("2. Update Task");
+        System.out.println("3. Mark Task as Completed");
+        System.out.println("4. View Tasks");
+        System.out.println("5. Save Tasks to File");
+        System.out.println("6. Load Tasks from File");
+        System.out.println("7. Quit");
+    }
+
+    private int getUserChoice() {
+        System.out.print("Enter your choice (1-7): ");
+        int choice = scanner.nextInt();
+        scanner.nextLine(); // Consume the newline character
+        return choice;
+    }
+
+    private void addTask() {
+        System.out.println("\n===== Add Task =====");
+        System.out.print("Enter task name: ");
+        String name = scanner.nextLine();
+        System.out.print("Enter task description: ");
+        String description = scanner.nextLine();
+        System.out.print("Enter task deadline (MM/dd/yyyy): ");
+        String deadlineStr = scanner.nextLine();
+        LocalDate deadline = LocalDate.parse(deadlineStr, DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+
+        System.out.print("Enter task priority (HIGH/MEDIUM/LOW): ");
+        Priority priority = Priority.valueOf(scanner.nextLine().toUpperCase());
+
+        System.out.print("Enter task category: ");
+        String category = scanner.nextLine();
+
+        Task task = new Task(name, description, deadline, priority, category);
+        tasks.add(task);
+
+        System.out.println("Task added successfully!");
+    }
+
+    private void updateTask() {
+        System.out.println("\n===== Update Task =====");
+        if (tasks.isEmpty()) {
+            System.out.println("No tasks available to update.");
+            return;
+        }
+
+        viewTasks();
+        System.out.print("Enter the index of the task to update: ");
+        int index = scanner.nextInt();
+        scanner.nextLine(); // Consume the newline character
+
+        if (index >= 0 && index < tasks.size()) {
+            Task task = tasks.get(index);
+            System.out.println("Current task details:\n" + task);
+
+            System.out.print("Enter new task name: ");
+            task.setName(scanner.nextLine());
+            System.out.print("Enter new task description: ");
+            task.setDescription(scanner.nextLine());
+            System.out.print("Enter new task deadline (MM/dd/yyyy): ");
+            String deadlineStr = scanner.nextLine();
+            task.setDeadline(LocalDate.parse(deadlineStr, DateTimeFormatter.ofPattern("MM/dd/yyyy")));
+
+            System.out.print("Enter new task priority (HIGH/MEDIUM/LOW): ");
+            task.setPriority(Priority.valueOf(scanner.nextLine().toUpperCase()));
+
+            System.out.print("Enter new task category: ");
+            task.setCategory(scanner.nextLine());
+
+            System.out.println("Task updated successfully!");
+        } else {
+            System.out.println("Invalid task index.");
+        }
+    }
+
+    private void markTaskAsCompleted() {
+        System.out.println("\n===== Mark Task as Completed =====");
+        if (tasks.isEmpty()) {
+            System.out.println("No tasks available to mark as completed.");
+            return;
+        }
+
+        viewTasks();
+        System.out.print("Enter the index of the task to mark as completed: ");
+        int index = scanner.nextInt();
+        scanner.nextLine(); // Consume the newline character
+
+        if (index >= 0 && index < tasks.size()) {
+            Task task = tasks.get(index);
+            task.markCompleted();
+            System.out.println("Task marked as completed!");
+        } else {
+            System.out.println("Invalid task index.");
+        }
+    }
+
+    private void viewTasks() {
+        System.out.println("\n===== View Tasks =====");
+        if (tasks.isEmpty()) {
+            System.out.println("No tasks available.");
+        } else {
+            for (int i = 0; i < tasks.size(); i++) {
+                System.out.println("Index: " + i + "\n" + tasks.get(i));
+            }
+        }
+    }
+
+    private void saveTasksToFile() {
+        System.out.println("\n===== Save Tasks to File =====");
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("tasks.dat"))) {
+            oos.writeObject(tasks);
+            System.out.println("Tasks saved to file successfully!");
+        } catch (IOException e) {
+            System.out.println("Error saving tasks to file: " + e.getMessage());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void loadTasksFromFile() {
+        System.out.println("\n===== Load Tasks from File =====");
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("tasks.dat"))) {
+            tasks = (ArrayList<Task>) ois.readObject();
+            System.out.println("Tasks loaded from file successfully!");
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("Error loading tasks from file: " + e.getMessage());
+        }
+    }
+
+    public static void main(String[] args) {
+        ToDoList toDoList = new ToDoList();
+        toDoList.start();
+    }
+}
