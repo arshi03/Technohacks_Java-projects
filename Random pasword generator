@@ -1,0 +1,92 @@
+import java.util.Random;
+import java.util.Scanner;
+
+public class RandomPasswordGenerator {
+    private static final String LOWERCASE_LETTERS = "abcdefghijklmnopqrstuvwxyz";
+    private static final String UPPERCASE_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private static final String NUMBERS = "0123456789";
+    private static final String SPECIAL_CHARACTERS = "!@#$%^&*_-+=";
+
+    private final Random random;
+
+    public RandomPasswordGenerator(Random random) {
+        this.random = random;
+    }
+
+    public String generatePassword(int length, boolean includeLowercase, boolean includeUppercase, boolean includeNumbers, boolean includeSpecialCharacters) {
+        StringBuilder passwordBuilder = new StringBuilder();
+
+        if (includeLowercase) {
+            passwordBuilder.append(getRandomSubstring(LOWERCASE_LETTERS, random.nextInt(length / 4) + 1));
+        }
+
+        if (includeUppercase) {
+            passwordBuilder.append(getRandomSubstring(UPPERCASE_LETTERS, random.nextInt(length / 4) + 1));
+        }
+
+        if (includeNumbers) {
+            passwordBuilder.append(getRandomSubstring(NUMBERS, random.nextInt(length / 4) + 1));
+        }
+
+        if (includeSpecialCharacters) {
+            passwordBuilder.append(getRandomSubstring(SPECIAL_CHARACTERS, random.nextInt(length / 4) + 1));
+        }
+
+        if (passwordBuilder.length() < length) {
+            int remainingLength = length - passwordBuilder.length();
+            passwordBuilder.append(getRandomSubstring(LOWERCASE_LETTERS + UPPERCASE_LETTERS + NUMBERS + SPECIAL_CHARACTERS, remainingLength));
+        }
+
+        return shuffle(passwordBuilder);
+    }
+
+    private String getRandomSubstring(String string, int length) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            int randomIndex = random.nextInt(string.length());
+            sb.append(string.charAt(randomIndex));
+        }
+        return sb.toString();
+    }
+
+    private String shuffle(StringBuilder sb) {
+        int length = sb.length();
+        for (int i = length - 1; i > 0; i--) {
+            int randomIndex = random.nextInt(i);
+            char temp = sb.charAt(i);
+            sb.setCharAt(i, sb.charAt(randomIndex));
+            sb.setCharAt(randomIndex, temp);
+        }
+        return sb.toString();
+    }
+
+    public static void main(String[] args) {
+        Random random = new Random();
+        RandomPasswordGenerator generator = new RandomPasswordGenerator(random);
+
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            System.out.print("Enter password length (or 0 to quit): ");
+            int length = scanner.nextInt();
+            if (length == 0) {
+                System.out.println("Goodbye!");
+                break;
+            }
+
+            System.out.print("Include lowercase letters? (y/n): ");
+            boolean includeLowercase = scanner.next().equalsIgnoreCase("y");
+
+            System.out.print("Include uppercase letters? (y/n): ");
+            boolean includeUppercase = scanner.next().equalsIgnoreCase("y");
+
+            System.out.print("Include numbers? (y/n): ");
+            boolean includeNumbers = scanner.next().equalsIgnoreCase("y");
+
+            System.out.print("Include special characters? (y/n): ");
+            boolean includeSpecialCharacters = scanner.next().equalsIgnoreCase("y");
+
+            String password = generator.generatePassword(length, includeLowercase, includeUppercase, includeNumbers, includeSpecialCharacters);
+            System.out.println("Generated password: " + password);
+        }
+    }
+}
